@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Range Harga Rumah Pulau Jawa</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#F2F5F7;--surf:#fff;--ink:#14233B;--mute:#5B6B80;--line:#D5DDE5;--teal:#0E7C86;--tealsoft:#BFE3E6;--amber:#C9821A;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1826;--surf:#172337;--ink:#E6EDF5;--mute:#93A3B8;--line:#2A3A52;--teal:#4FC3CD;--tealsoft:#1F4A55;--amber:#E7A94A;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0F1826;--surf:#172337;--ink:#E6EDF5;--mute:#93A3B8;--line:#2A3A52;--teal:#4FC3CD;--tealsoft:#1F4A55;--amber:#E7A94A;color-scheme:dark}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+main{max-width:920px;margin:0 auto;padding:32px 20px 56px}
+h1{font:700 clamp(1.6rem,4vw,2.3rem)/1.2 Georgia,"Times New Roman",serif;margin:0 0 6px}
+h2{font:700 1.15rem/1.3 Georgia,serif;margin:40px 0 12px}
+.sub{color:var(--mute);margin:0 0 28px}
+.big{display:flex;flex-wrap:wrap;gap:6px 28px;align-items:baseline;margin:0 0 6px}
+.big b{font:700 clamp(1.7rem,5vw,2.6rem)/1.1 Georgia,serif}
+.big span{color:var(--mute)}
+.track{position:relative;height:14px;background:var(--line);border-radius:7px;margin:10px 0 4px}
+.seg{position:absolute;top:0;height:100%;border-radius:7px}
+.tick{position:absolute;top:-4px;width:3px;height:22px;background:var(--ink);border-radius:2px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.85rem;color:var(--mute);margin-top:10px}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:8px;padding:16px 18px}
+.row{padding:12px 0;border-top:1px solid var(--line)}.row:first-child{border-top:0}
+.rh{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:.95rem}
+.rh b{font-weight:600}.rh span{color:var(--mute)}
+.dr{display:grid;grid-template-columns:minmax(120px,190px) 1fr 90px;gap:12px;align-items:center;padding:7px 0;font-size:.95rem}
+.bar{height:12px;background:var(--line);border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--teal)}
+.dr em{font-style:normal;text-align:right;color:var(--mute)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:.9rem}
+th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}
+th{position:sticky;top:0;background:var(--surf);cursor:pointer;font-weight:600}
+select{font:inherit;color:var(--ink);background:var(--surf);border:1px solid var(--line);border-radius:6px;padding:6px 8px;margin-bottom:10px}
+select:focus-visible,th:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+footer{color:var(--mute);font-size:.85rem;margin-top:40px}
+</style></head><body><main>
+<h1>Range harga rumah di Pulau Jawa</h1>
+<p class="sub" id="sub"></p>
+<section class="card" aria-label="Range harga keseluruhan">
+<div class="big"><b id="rg"></b><span>termurah sampai termahal</span></div>
+<div class="track" id="hero"></div>
+<div class="legend">
+<span><i class="sw" style="background:var(--tealsoft)"></i>90% data (P5–P95)</span>
+<span><i class="sw" style="background:var(--teal)"></i>Rentang tengah (Q1–Q3)</span>
+<span><i class="sw" style="background:var(--ink)"></i>Median</span></div>
+<p id="notes" style="margin:14px 0 0;font-size:.95rem"></p>
+</section>
+<h2>Range per provinsi</h2>
+<div class="card" id="prov"></div>
+<h2>Sebaran properti per kelompok harga</h2>
+<div class="card" id="dist"></div>
+<h2>Per kota / kabupaten</h2>
+<div class="card"><label for="f">Provinsi </label><select id="f"></select>
+<div class="scroll"><table id="t"><thead></thead><tbody></tbody></table></div></div>
+<footer>Sumber: dataset_properti_pulau_jawa_1000.xlsx (1.000 properti). Klik judul kolom tabel untuk mengurutkan.</footer>
+</main>
+<script>
+const D={"tot": {"n": 1000, "min": 377405798, "max": 1400000000, "med": 716520139.0, "mean": 735004450.099, "q1": 660000000.0, "q3": 820000000.0, "p5": 522708335.15, "p95": 949138276.35, "minloc": "Secang, Magelang", "maxloc": "Ujungberung, Bandung"}, "prov": [{"name": "DKI Jakarta", "n": 155, "min": 742796554, "med": 820000000.0, "mean": 838762319.8193549, "max": 1030000000}, {"name": "Jawa Barat", "n": 251, "min": 421456252, "med": 700000000.0, "mean": 744608710.2749004, "max": 1400000000}, {"name": "Jawa Timur", "n": 230, "min": 521763772, "med": 700000000.0, "mean": 728588101.7956522, "max": 1320000000}, {"name": "DI Yogyakarta", "n": 99, "min": 452815555, "med": 720000000.0, "mean": 693848703.8383838, "max": 949487731}, {"name": "Jawa Tengah", "n": 160, "min": 377405798, "med": 670000000.0, "mean": 694271286.64375, "max": 1200000000}, {"name": "Banten", "n": 105, "min": 429035640, "med": 700000000.0, "mean": 673807745.6380953, "max": 923144514}], "city": [{"prov": "DKI Jakarta", "name": "Jakarta Barat", "n": 31, "min": 755074238, "med": 810000000.0, "mean": 814498045.2903225, "max": 892658503}, {"prov": "DKI Jakarta", "name": "Jakarta Pusat", "n": 30, "min": 769179776, "med": 880000000.0, "mean": 886836960.4666667, "max": 1030000000}, {"prov": "DKI Jakarta", "name": "Jakarta Selatan", "n": 34, "min": 742796554, "med": 820000000.0, "mean": 835824815.882353, "max": 969162645}, {"prov": "DKI Jakarta", "name": "Jakarta Timur", "n": 27, "min": 759334143, "med": 820000000.0, "mean": 827229452.074074, "max": 899986472}, {"prov": "DKI Jakarta", "name": "Jakarta Utara", "n": 33, "min": 761439802, "med": 820000000.0, "mean": 830314315.3939394, "max": 910000000}, {"prov": "Jawa Barat", "name": "Bandung", "n": 17, "min": 764764677, "med": 1185691542.0, "mean": 1104025767.764706, "max": 1400000000}, {"prov": "Jawa Barat", "name": "Bekasi", "n": 21, "min": 495711971, "med": 800000000.0, "mean": 788351683.5238096, "max": 1090000000}, {"prov": "Jawa Barat", "name": "Bogor", "n": 21, "min": 510000000, "med": 780000000.0, "mean": 802414134.6666666, "max": 1100000000}, {"prov": "Jawa Barat", "name": "Ciamis", "n": 13, "min": 637529507, "med": 680000000.0, "mean": 680110051.0769231, "max": 723885050}, {"prov": "Jawa Barat", "name": "Cimahi", "n": 11, "min": 708870821, "med": 820000000.0, "mean": 808238673.6363636, "max": 870263650}, {"prov": "Jawa Barat", "name": "Cirebon", "n": 25, "min": 531109042, "med": 630000000.0, "mean": 626005072.6, "max": 720000000}, {"prov": "Jawa Barat", "name": "Depok", "n": 22, "min": 421456252, "med": 755000000.0, "mean": 726971701.7727273, "max": 917050891}, {"prov": "Jawa Barat", "name": "Garut", "n": 13, "min": 670000000, "med": 700000000.0, "mean": 701535644.6923077, "max": 731940592}, {"prov": "Jawa Barat", "name": "Indramayu", "n": 13, "min": 660000000, "med": 680000000.0, "mean": 684406940.6153846, "max": 723899018}, {"prov": "Jawa Barat", "name": "Karawang", "n": 18, "min": 688659180, "med": 755000000.0, "mean": 767641334.3888888, "max": 957920792}, {"prov": "Jawa Barat", "name": "Majalengka", "n": 17, "min": 653951246, "med": 700000000.0, "mean": 700148666.0588236, "max": 762197308}, {"prov": "Jawa Barat", "name": "Purwakarta", "n": 13, "min": 647526011, "med": 693092703.0, "mean": 690869766.3846154, "max": 730688249}, {"prov": "Jawa Barat", "name": "Subang", "n": 12, "min": 650000000, "med": 680000000.0, "mean": 689832006.25, "max": 760000000}, {"prov": "Jawa Barat", "name": "Sukabumi", "n": 20, "min": 640000000, "med": 690000000.0, "mean": 692048020.1, "max": 730000000}, {"prov": "Jawa Barat", "name": "Tasikmalaya", "n": 15, "min": 642977117, "med": 700000000.0, "mean": 700608621.7333333, "max": 765334816}, {"prov": "Jawa Timur", "name": "Banyuwangi", "n": 16, "min": 620000000, "med": 685000000.0, "mean": 690671388.8125, "max": 782960902}, {"prov": "Jawa Timur", "name": "Blitar", "n": 14, "min": 620000000, "med": 680000000.0, "mean": 683864164.2857143, "max": 743767388}, {"prov": "Jawa Timur", "name": "Bojonegoro", "n": 18, "min": 596920309, "med": 675000000.0, "mean": 673131688.5555556, "max": 746320341}, {"prov": "Jawa Timur", "name": "Gresik", "n": 20, "min": 521763772, "med": 710000000.0, "mean": 687039703.2, "max": 840000000}, {"prov": "Jawa Timur", "name": "Jember", "n": 12, "min": 620000000, "med": 699289012.5, "mean": 701171499.5833334, "max": 820000000}, {"prov": "Jawa Timur", "name": "Kediri", "n": 24, "min": 620000000, "med": 699355608.5, "mean": 705167414.4166666, "max": 840646186}, {"prov": "Jawa Timur", "name": "Madiun", "n": 17, "min": 550000000, "med": 642267090.0, "mean": 679149511.3529412, "max": 882462805}, {"prov": "Jawa Timur", "name": "Malang", "n": 13, "min": 730000000, "med": 810000000.0, "mean": 848883922.0, "max": 1195490986}, {"prov": "Jawa Timur", "name": "Nganjuk", "n": 16, "min": 594166160, "med": 665000000.0, "mean": 659354614.625, "max": 728976646}, {"prov": "Jawa Timur", "name": "Pasuruan", "n": 11, "min": 620000000, "med": 700000000.0, "mean": 692446136.3636364, "max": 750000000}, {"prov": "Jawa Timur", "name": "Probolinggo", "n": 15, "min": 620000000, "med": 680000000.0, "mean": 677284063.8666667, "max": 706662933}, {"prov": "Jawa Timur", "name": "Sidoarjo", "n": 14, "min": 610000000, "med": 760000000.0, "mean": 743777883.2142857, "max": 820000000}, {"prov": "Jawa Timur", "name": "Surabaya", "n": 23, "min": 820000000, "med": 911522962.0, "mean": 1005045890.3043479, "max": 1320000000}, {"prov": "Jawa Timur", "name": "Tulungagung", "n": 17, "min": 579563011, "med": 670000000.0, "mean": 665844804.7058823, "max": 732040929}, {"prov": "DI Yogyakarta", "name": "Bantul", "n": 19, "min": 641216078, "med": 720000000.0, "mean": 727492505.4210526, "max": 857677721}, {"prov": "DI Yogyakarta", "name": "Gunung Kidul", "n": 19, "min": 452815555, "med": 520000000.0, "mean": 526950501.6315789, "max": 583315274}, {"prov": "DI Yogyakarta", "name": "Kulon Progo", "n": 16, "min": 507718748, "med": 560000000.0, "mean": 556066831.125, "max": 609175582}, {"prov": "DI Yogyakarta", "name": "Sleman", "n": 23, "min": 522758049, "med": 761135096.0, "mean": 744943752.6086956, "max": 867903391}, {"prov": "DI Yogyakarta", "name": "Yogyakarta", "n": 22, "min": 770824640, "med": 850000000.0, "mean": 855719497.1818181, "max": 949487731}, {"prov": "Jawa Tengah", "name": "Boyolali", "n": 14, "min": 600000000, "med": 636888769.5, "mean": 648942902.0, "max": 725942387}, {"prov": "Jawa Tengah", "name": "Demak", "n": 12, "min": 620000000, "med": 680000000.0, "mean": 675985972.6666666, "max": 716132778}, {"prov": "Jawa Tengah", "name": "Jepara", "n": 14, "min": 604648655, "med": 650000000.0, "mean": 652649194.5, "max": 710000000}, {"prov": "Jawa Tengah", "name": "Kudus", "n": 18, "min": 620000000, "med": 680000000.0, "mean": 685182994.2222222, "max": 745991899}, {"prov": "Jawa Tengah", "name": "Magelang", "n": 18, "min": 377405798, "med": 539296909.5, "mean": 535659120.6666667, "max": 710000000}, {"prov": "Jawa Tengah", "name": "Pekalongan", "n": 20, "min": 500000000, "med": 607650328.0, "mean": 602252980.8, "max": 720000000}, {"prov": "Jawa Tengah", "name": "Semarang", "n": 21, "min": 700000000, "med": 949119884.0, "mean": 966371979.3809524, "max": 1200000000}, {"prov": "Jawa Tengah", "name": "Sragen", "n": 12, "min": 620000000, "med": 690000000.0, "mean": 685941003.3333334, "max": 751862956}, {"prov": "Jawa Tengah", "name": "Surakarta", "n": 15, "min": 710000000, "med": 810000000.0, "mean": 796687611.6, "max": 902411233}, {"prov": "Jawa Tengah", "name": "Tegal", "n": 16, "min": 560000000, "med": 641691203.5, "mean": 640853085.9375, "max": 720000000}, {"prov": "Banten", "name": "Cilegon", "n": 17, "min": 549826272, "med": 600000000.0, "mean": 609389790.882353, "max": 684132253}, {"prov": "Banten", "name": "Pandeglang", "n": 20, "min": 429035640, "med": 481323065.5, "mean": 479187673.85, "max": 533583738}, {"prov": "Banten", "name": "Serang", "n": 16, "min": 620000000, "med": 705000000.0, "mean": 702537036.3125, "max": 761738871}, {"prov": "Banten", "name": "Tangerang", "n": 33, "min": 623203822, "med": 720000000.0, "mean": 722493922.1818181, "max": 909251342}, {"prov": "Banten", "name": "Tangerang Selatan", "n": 19, "min": 700000000, "med": 830000000.0, "mean": 827554808.2631578, "max": 923144514}], "dist": [{"label": "≤ Rp 500 juta", "n": 38}, {"label": "Rp 500 juta – 1 miliar", "n": 929}, {"label": "Rp 1 – 1,5 miliar", "n": 33}, {"label": "> Rp 1,5 miliar", "n": 0}]};
+const fmt=n=>n>=1e9?(n/1e9).toLocaleString("id-ID",{maximumFractionDigits:2})+" miliar":Math.round(n/1e6).toLocaleString("id-ID")+" juta";
+const T=D.tot,LO=T.min,HI=T.max,pct=v=>((v-LO)/(HI-LO)*100);
+const $=id=>document.getElementById(id);
+$("sub").textContent=T.n.toLocaleString("id-ID")+" properti di 6 provinsi. Harga dalam rupiah.";
+$("rg").textContent="Rp "+fmt(LO)+" – Rp "+fmt(HI);
+function track(el,min,max,q1,q3,med,p5,p95){
+ const seg=(a,b,c)=>`<div class="seg" style="left:${pct(a)}%;width:${Math.max(pct(b)-pct(a),.8)}%;background:${c}"></div>`;
+ el.innerHTML=(p5!=null?seg(p5,p95,"var(--tealsoft)"):seg(min,max,"var(--tealsoft)"))+(q1!=null?seg(q1,q3,"var(--teal)"):"")+`<div class="tick" style="left:calc(${pct(med)}% - 1px)"></div>`;}
+track($("hero"),LO,HI,T.q1,T.q3,T.med,T.p5,T.p95);
+$("notes").innerHTML=`Termurah: <b>${fmt(LO)}</b> (${T.minloc}). Termahal: <b>${fmt(HI)}</b> (${T.maxloc}).<br>Median ${fmt(T.med)}, rata-rata ${fmt(T.mean)}. Setengah rumah berharga ${fmt(T.q1)} – ${fmt(T.q3)}.`;
+$("prov").innerHTML=D.prov.map((p,i)=>`<div class="row"><div class="rh"><b>${p.name}</b><span>${fmt(p.min)} – ${fmt(p.max)} · median ${fmt(p.med)} · ${p.n} rumah</span></div><div class="track" id="p${i}"></div></div>`).join("");
+D.prov.forEach((p,i)=>track($("p"+i),p.min,p.max,null,null,p.med));
+const mx=Math.max(...D.dist.map(d=>d.n));
+$("dist").innerHTML=D.dist.map(d=>`<div class="dr"><span>${d.label}</span><div class="bar"><i style="width:${d.n/mx*100}%"></i></div><em>${d.n} (${(d.n/T.n*100).toFixed(1)}%)</em></div>`).join("");
+const cols=[["prov","Provinsi"],["name","Kota/Kab."],["n","Jumlah"],["min","Termurah"],["mean","Rata-rata"],["max","Termahal"]];
+let key="prov",asc=true,fil="Semua";
+$("f").innerHTML=["Semua",...D.prov.map(p=>p.name)].map(x=>`<option>${x}</option>`).join("");
+$("f").onchange=e=>{fil=e.target.value;draw()};
+$("t").tHead.innerHTML="<tr>"+cols.map(c=>`<th tabindex="0" data-k="${c[0]}">${c[1]}</th>`).join("")+"</tr>";
+$("t").tHead.onclick=e=>{const k=e.target.dataset.k;if(!k)return;asc=key===k?!asc:true;key=k;draw()};
+$("t").tHead.onkeydown=e=>{if(e.key==="Enter")e.target.click()};
+function draw(){
+ let r=D.city.filter(c=>fil==="Semua"||c.prov===fil);
+ r.sort((a,b)=>(typeof a[key]==="string"?a[key].localeCompare(b[key]):a[key]-b[key])*(asc?1:-1));
+ $("t").tBodies[0].innerHTML=r.map(c=>`<tr><td>${c.prov}</td><td>${c.name}</td><td>${c.n}</td><td>${fmt(c.min)}</td><td>${fmt(c.mean)}</td><td>${fmt(c.max)}</td></tr>`).join("");}
+draw();
+</script></body></html>
